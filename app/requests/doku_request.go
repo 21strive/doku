@@ -1,6 +1,6 @@
 package requests
 
-import "github.com/faizauthar12/doku/app/models"
+import "github.com/21strive/doku/app/models"
 
 type DokuCreateSubAccountHTTPRequest struct {
 	Account DokuCreateSubAccountAccount `json:"account"`

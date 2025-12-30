@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/faizauthar12/doku/app/config"
-	"github.com/faizauthar12/doku/app/constants"
+	"github.com/21strive/doku/app/config"
+	"github.com/21strive/doku/app/constants"
 )
 
 func init() {

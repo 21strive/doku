@@ -1,4 +1,4 @@
-module github.com/faizauthar12/doku
+module github.com/21strive/doku
 
 go 1.25.1
 

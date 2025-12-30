@@ -2,10 +2,11 @@ package helper
 
 import (
 	"fmt"
-	"github.com/faizauthar12/doku/app/models"
 	"net/http"
 	"runtime"
 	"strings"
+
+	"github.com/21strive/doku/app/models"
 
 	"github.com/sirupsen/logrus"
 )

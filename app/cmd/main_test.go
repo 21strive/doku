@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/faizauthar12/doku/app/config"
-	"github.com/faizauthar12/doku/app/constants"
-	"github.com/faizauthar12/doku/app/requests"
-	"github.com/faizauthar12/doku/app/usecases"
+	"github.com/21strive/doku/app/config"
+	"github.com/21strive/doku/app/constants"
+	"github.com/21strive/doku/app/requests"
+	"github.com/21strive/doku/app/usecases"
 )
 
 // func init() {

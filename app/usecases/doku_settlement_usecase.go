@@ -4,9 +4,9 @@ import (
 	"errors"
 	"math"
 
-	"github.com/faizauthar12/doku/app/config"
-	"github.com/faizauthar12/doku/app/constants"
-	"github.com/faizauthar12/doku/app/responses"
+	"github.com/21strive/doku/app/config"
+	"github.com/21strive/doku/app/constants"
+	"github.com/21strive/doku/app/responses"
 )
 
 type DokuSettlementUseCaseInterface interface {

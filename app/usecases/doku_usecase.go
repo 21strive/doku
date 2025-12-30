@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/faizauthar12/doku/app/constants"
-	"github.com/faizauthar12/doku/app/models"
-	"github.com/faizauthar12/doku/app/requests"
-	"github.com/faizauthar12/doku/app/responses"
-	"github.com/faizauthar12/doku/app/utils/helper"
+	"github.com/21strive/doku/app/constants"
+	"github.com/21strive/doku/app/models"
+	"github.com/21strive/doku/app/requests"
+	"github.com/21strive/doku/app/responses"
+	"github.com/21strive/doku/app/utils/helper"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null/v6"

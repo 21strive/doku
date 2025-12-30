@@ -3,7 +3,7 @@ package responses
 import (
 	"time"
 
-	"github.com/faizauthar12/doku/app/models"
+	"github.com/21strive/doku/app/models"
 
 	"github.com/guregu/null/v6"
 )

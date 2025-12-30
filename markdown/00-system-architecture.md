@@ -283,7 +283,7 @@ The module requires the following environment variables:
 
 ### As a Standalone Module
 ```go
-import "github.com/faizauthar12/doku/app/config"
+import "github.com/21strive/doku/app/config"
 
 func main() {
     // Load .env file and initialize config
@@ -301,7 +301,7 @@ func main() {
 
 ### As a Module in Parent Project
 ```go
-import "github.com/faizauthar12/doku/app/config"
+import "github.com/21strive/doku/app/config"
 
 func main() {
     // Parent project already loaded .env

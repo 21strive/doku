@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/faizauthar12/doku/app/utils/helper"
+	"github.com/21strive/doku/app/utils/helper"
 
 	"github.com/joho/godotenv"
 )
