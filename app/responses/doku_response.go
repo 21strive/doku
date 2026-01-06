@@ -118,6 +118,11 @@ type DokuPostNotificationHTTPResponse struct {
 		ApiFormat null.String `json:"apiFormat,omitempty"`
 		Source    null.String `json:"source,omitempty"`
 	}
+	AdditionalInfo struct {
+		Account struct {
+			Id string `json:"id,omitempty"`
+		} `json:"account,omitempty"`
+	} `json:"additionalInfo,omitempty"`
 }
 
 type GetTokenResponse struct {
