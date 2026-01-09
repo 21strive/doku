@@ -122,7 +122,7 @@ type DokuPostNotificationHTTPResponse struct {
 		Account struct {
 			Id string `json:"id,omitempty"`
 		} `json:"account,omitempty"`
-	} `json:"additionalInfo,omitempty"`
+	} `json:"additional_info,omitempty"`
 }
 
 type GetTokenResponse struct {
