@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -28,12 +29,14 @@ type DokuUseCaseInterface interface {
 	HandleNotification(request *requests.DokuNotificationRequest) (*responses.DokuPostNotificationHTTPResponse, *models.ErrorLog)
 	GetToken() (*responses.GetTokenResponse, *models.ErrorLog)
 	BankAccountInquiry(request *requests.DokuBankAccountInquiryRequest, accessToken string) (*responses.BankAccountInquiryResponse, *models.ErrorLog)
+	GetSupportedBanks() []models.Bank
 }
 
 type dokuUseCase struct {
 	DokuAPIClientID  string
 	DokuAPISecretKey string
 	DokuPrivateKey   string
+	supportedBanks   []models.Bank
 }
 
 func NewDokuUseCase(
@@ -41,10 +44,26 @@ func NewDokuUseCase(
 	dokuAPISecretKey string,
 	dokuPrivateKey string,
 ) DokuUseCaseInterface {
+
+	file := "../constants/doku_supported_banks.json"
+
+	var banks []models.Bank
+
+	f, err := os.Open(file)
+	if err != nil {
+		panic("Failed to open supported banks JSON: " + err.Error())
+	}
+
+	err = json.NewDecoder(f).Decode(&banks)
+	if err != nil {
+		panic("Failed to decode supported banks JSON: " + err.Error())
+	}
+
 	return &dokuUseCase{
 		DokuAPIClientID:  dokuAPIClientID,
 		DokuAPISecretKey: dokuAPISecretKey,
 		DokuPrivateKey:   dokuPrivateKey,
+		supportedBanks:   banks,
 	}
 }
 
@@ -590,4 +609,8 @@ func (u *dokuUseCase) BankAccountInquiry(request *requests.DokuBankAccountInquir
 	}
 
 	return bankAccountInquiryResponse, nil
+}
+
+func (u *dokuUseCase) GetSupportedBanks() []models.Bank {
+	return u.supportedBanks
 }
