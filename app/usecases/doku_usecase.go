@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -44,26 +43,11 @@ func NewDokuUseCase(
 	dokuAPISecretKey string,
 	dokuPrivateKey string,
 ) DokuUseCaseInterface {
-
-	file := "../constants/doku_supported_banks.json"
-
-	var banks []models.Bank
-
-	f, err := os.Open(file)
-	if err != nil {
-		panic("Failed to open supported banks JSON: " + err.Error())
-	}
-
-	err = json.NewDecoder(f).Decode(&banks)
-	if err != nil {
-		panic("Failed to decode supported banks JSON: " + err.Error())
-	}
-
 	return &dokuUseCase{
 		DokuAPIClientID:  dokuAPIClientID,
 		DokuAPISecretKey: dokuAPISecretKey,
 		DokuPrivateKey:   dokuPrivateKey,
-		supportedBanks:   banks,
+		supportedBanks:   constants.MustGetSupportedBanks(),
 	}
 }
 
