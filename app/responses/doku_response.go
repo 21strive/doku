@@ -25,6 +25,23 @@ type DokuCreateSubAccountAccountResponse struct {
 	ID          null.String `json:"id"`
 }
 
+type DokuSendPayoutSubAccountResponse struct {
+	Account struct {
+		ID string `json:"id"`
+	} `json:"account"`
+	Payout struct {
+		Amount        int    `json:"amount"`
+		InvoiceNumber string `json:"invoice_number"`
+		Status        string `json:"status"`
+		Created       string `json:"created"`
+	} `json:"payout"`
+	Beneficiary struct {
+		BankCode          string `json:"bank_code"`
+		BankAccountNumber int    `json:"bank_account_number"`
+		BankAccountName   string `json:"bank_account_name"`
+	} `json:"beneficiary"`
+}
+
 type DokuCreatePaymentHTTPResponse struct {
 	Response struct {
 		Order          *models.DokuOrder                 `json:"order"`

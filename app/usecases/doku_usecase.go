@@ -29,6 +29,7 @@ type DokuUseCaseInterface interface {
 	GetToken() (*responses.GetTokenResponse, *models.ErrorLog)
 	BankAccountInquiry(request *requests.DokuBankAccountInquiryRequest, accessToken string) (*responses.BankAccountInquiryResponse, *models.ErrorLog)
 	GetSupportedBanks() []models.Bank
+	SendPayoutSubAccount(requests.DokuSendPayoutSubAccountRequest) (*responses.DokuSendPayoutSubAccountResponse, *models.ErrorLog)
 }
 
 type dokuUseCase struct {
@@ -597,4 +598,69 @@ func (u *dokuUseCase) BankAccountInquiry(request *requests.DokuBankAccountInquir
 
 func (u *dokuUseCase) GetSupportedBanks() []models.Bank {
 	return u.supportedBanks
+}
+
+func (u *dokuUseCase) SendPayoutSubAccount(request requests.DokuSendPayoutSubAccountRequest) (*responses.DokuSendPayoutSubAccountResponse, *models.ErrorLog) {
+
+	sendPayoutPayloadJson, err := json.Marshal(request)
+	if err != nil {
+		logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to marshal create account payload")
+		return nil, logData
+	}
+
+	// preparing signature components
+	requestId := uuid.NewString()
+	requestTimeStamp := time.Now().UTC()
+	requestTarget := "/sac-merchant/v1/payouts"
+
+	signature, logData := u.createSignatureComponent(requestId, &requestTimeStamp, requestTarget, sendPayoutPayloadJson)
+	if logData != nil {
+		return nil, logData
+	}
+
+	// preparing request headers
+	requestHeader := map[string]string{
+		"Client-Id":         u.DokuAPIClientID,
+		"Request-Id":        requestId,
+		"Request-Timestamp": requestTimeStamp.Format("2006-01-02T15:04:05Z"),
+		"Signature":         signature,
+	}
+
+	sendPayoutAPI := helper.POST(&helper.Options{
+		Method:      "POST",
+		URL:         "https://api-sandbox.doku.com/sac-merchant/v1/payouts",
+		Body:        sendPayoutPayloadJson,
+		Headers:     requestHeader,
+		Timeout:     30 * time.Second,
+		ContentType: "application/json",
+		QueryParams: nil,
+		IsPrintCurl: true,
+	})
+
+	if sendPayoutAPI.Error != nil {
+		logData := helper.WriteLog(sendPayoutAPI.Error, sendPayoutAPI.StatusCode, helper.DefaultStatusText[sendPayoutAPI.StatusCode])
+		return nil, logData
+	}
+
+	if sendPayoutAPI.StatusCode >= 300 {
+		dokuErrorResponse := &responses.DokuErrorHTTPResponse{}
+		err = json.Unmarshal(sendPayoutAPI.Body, &dokuErrorResponse)
+		if err != nil {
+			logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to unmarshal send payout error response")
+			return nil, logData
+		}
+
+		errorMessage := fmt.Sprintf("Doku Send Payout API Error: %v", dokuErrorResponse.Message)
+		logData := helper.WriteLog(fmt.Errorf("Doku Send Payout API Error: %v", dokuErrorResponse.Message), sendPayoutAPI.StatusCode, errorMessage)
+		return nil, logData
+	}
+
+	var sendPayoutResponse *responses.DokuSendPayoutSubAccountResponse
+	err = json.Unmarshal(sendPayoutAPI.Body, &sendPayoutResponse)
+	if err != nil {
+		logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to unmarshal send payout response")
+		return nil, logData
+	}
+
+	return sendPayoutResponse, nil
 }

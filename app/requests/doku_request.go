@@ -17,6 +17,21 @@ type DokuCreateSubAccountRequest struct {
 	Name  string `json:"name"`
 }
 
+type DokuSendPayoutSubAccountRequest struct {
+	Account struct {
+		ID string `json:"id"`
+	} `json:"account"`
+	Payout struct {
+		Amount        int    `json:"amount"`
+		InvoiceNumber string `json:"invoice_number"`
+	} `json:"payout"`
+	Beneficiary struct {
+		BankCode          string `json:"bank_code"`
+		BankAccountNumber string `json:"bank_account_number"`
+		BankAccountName   string `json:"bank_account_name"`
+	} `json:"beneficiary"`
+}
+
 type DokuCreatePaymentHTTPRequest struct {
 	Order              *models.DokuOrder              `json:"order"`
 	VirtualAccountInfo *models.DokuVirtualAccountInfo `json:"virtual_account_info,omitempty"`
