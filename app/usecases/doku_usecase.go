@@ -234,7 +234,7 @@ func (u *dokuUseCase) CreateAccount(request *requests.DokuCreateSubAccountReques
 		Account: &responses.DokuCreateSubAccountAccountResponse{},
 	}
 
-	if createAccountAPI.StatusCode != http.StatusOK {
+	if createAccountAPI.StatusCode >= 300 {
 		type DokuErrorResponse struct {
 			Error struct {
 				Message string `json:"message"`
@@ -249,19 +249,19 @@ func (u *dokuUseCase) CreateAccount(request *requests.DokuCreateSubAccountReques
 			return nil, logData
 		}
 
-		if dokuErrorResponse.Error.Message != "" {
-			if strings.Contains(dokuErrorResponse.Error.Message, "email already registered") {
-				// extract the account id from error message
-				// message format: "email already registered with account id: SAC-6604-1764297586731"
-				parts := strings.Split(dokuErrorResponse.Error.Message, "account id: ")
-				if len(parts) == 2 {
-					sacID := strings.TrimSpace(parts[1])
-					createAccountResponse.Account.ID = null.StringFrom(sacID)
-
-					return createAccountResponse.Account, nil
-				}
-			}
-		}
+		// if dokuErrorResponse.Error.Message != "" {
+		// 	if strings.Contains(dokuErrorResponse.Error.Message, "email already registered") {
+		// 		// extract the account id from error message
+		// 		// message format: "email already registered with account id: SAC-6604-1764297586731"
+		// 		parts := strings.Split(dokuErrorResponse.Error.Message, "account id: ")
+		// 		if len(parts) == 2 {
+		// 			sacID := strings.TrimSpace(parts[1])
+		// 			createAccountResponse.Account.ID = null.StringFrom(sacID)
+		//
+		// 			return createAccountResponse.Account, nil
+		// 		}
+		// 	}
+		// }
 
 		errorMessage := fmt.Sprintf("Doku Create Sub Account API Error: %v", dokuErrorResponse.Error.Message)
 		logData := helper.WriteLog(fmt.Errorf("Doku Create Sub Account API Error: %v", dokuErrorResponse.Error.Message), createAccountAPI.StatusCode, errorMessage)
