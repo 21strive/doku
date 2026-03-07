@@ -32,6 +32,15 @@ type DokuSendPayoutSubAccountRequest struct {
 	} `json:"beneficiary"`
 }
 
+type DokuTransferSubAccountRequest struct {
+	Transfer struct {
+		Origin        string `json:"origin"`
+		Destination   string `json:"destination"`
+		Amount        int    `json:"amount"`
+		InvoiceNumber string `json:"invoice_number"`
+	} `json:"transfer"`
+}
+
 type DokuCreatePaymentHTTPRequest struct {
 	Order              *models.DokuOrder              `json:"order"`
 	VirtualAccountInfo *models.DokuVirtualAccountInfo `json:"virtual_account_info,omitempty"`
