@@ -42,6 +42,17 @@ type DokuSendPayoutSubAccountResponse struct {
 	} `json:"beneficiary"`
 }
 
+type DokuTransferSubAccountResponse struct {
+	Transfer struct {
+		InvoiceNumber string `json:"invoice_number"`
+		Origin        string `json:"origin"`
+		Destination   string `json:"destination"`
+		Amount        int    `json:"amount"`
+		Status        string `json:"status"`
+		Created       string `json:"created"`
+	} `json:"transfer"`
+}
+
 type DokuCreatePaymentHTTPResponse struct {
 	Response struct {
 		Order          *models.DokuOrder                 `json:"order"`

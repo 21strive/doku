@@ -30,6 +30,7 @@ type DokuUseCaseInterface interface {
 	BankAccountInquiry(request *requests.DokuBankAccountInquiryRequest, accessToken string) (*responses.BankAccountInquiryResponse, *models.ErrorLog)
 	GetSupportedBanks() []models.Bank
 	SendPayoutSubAccount(requests.DokuSendPayoutSubAccountRequest) (*responses.DokuSendPayoutSubAccountResponse, *models.ErrorLog)
+	TransferSubAccount(request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog)
 }
 
 type dokuUseCase struct {
@@ -663,4 +664,69 @@ func (u *dokuUseCase) SendPayoutSubAccount(request requests.DokuSendPayoutSubAcc
 	}
 
 	return sendPayoutResponse, nil
+}
+
+func (u *dokuUseCase) TransferSubAccount(request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog) {
+
+	transferPayloadJson, err := json.Marshal(request)
+	if err != nil {
+		logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to marshal transfer account payload")
+		return nil, logData
+	}
+
+	// preparing signature components
+	requestId := uuid.NewString()
+	requestTimeStamp := time.Now().UTC()
+	requestTarget := "/sac-merchant/v1/transfers"
+
+	signature, logData := u.createSignatureComponent(requestId, &requestTimeStamp, requestTarget, transferPayloadJson)
+	if logData != nil {
+		return nil, logData
+	}
+
+	// preparing request headers
+	requestHeader := map[string]string{
+		"Client-Id":         u.DokuAPIClientID,
+		"Request-Id":        requestId,
+		"Request-Timestamp": requestTimeStamp.Format("2006-01-02T15:04:05Z"),
+		"Signature":         signature,
+	}
+
+	transferAPI := helper.POST(&helper.Options{
+		Method:      "POST",
+		URL:         "https://api-sandbox.doku.com/sac-merchant/v1/transfers",
+		Body:        transferPayloadJson,
+		Headers:     requestHeader,
+		Timeout:     30 * time.Second,
+		ContentType: "application/json",
+		QueryParams: nil,
+		IsPrintCurl: true,
+	})
+
+	if transferAPI.Error != nil {
+		logData := helper.WriteLog(transferAPI.Error, transferAPI.StatusCode, helper.DefaultStatusText[transferAPI.StatusCode])
+		return nil, logData
+	}
+
+	if transferAPI.StatusCode >= 300 {
+		dokuErrorResponse := &responses.DokuErrorHTTPResponse{}
+		err = json.Unmarshal(transferAPI.Body, &dokuErrorResponse)
+		if err != nil {
+			logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to unmarshal transfer error response")
+			return nil, logData
+		}
+
+		errorMessage := fmt.Sprintf("Doku Transfer API Error: %v", dokuErrorResponse.Message)
+		logData := helper.WriteLog(fmt.Errorf("Doku Transfer API Error: %v", dokuErrorResponse.Message), transferAPI.StatusCode, errorMessage)
+		return nil, logData
+	}
+
+	var transferResponse *responses.DokuTransferSubAccountResponse
+	err = json.Unmarshal(transferAPI.Body, &transferResponse)
+	if err != nil {
+		logData := helper.WriteLog(err, http.StatusInternalServerError, "Failed to unmarshal transfer response")
+		return nil, logData
+	}
+
+	return transferResponse, nil
 }
