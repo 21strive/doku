@@ -310,7 +310,7 @@ func (u *dokuUseCase) AcceptPayment(request *requests.DokuCreatePaymentRequest) 
 	createPaymentPayload := &requests.DokuCreatePaymentHTTPRequest{
 		Order: &models.DokuOrder{
 			InvoiceNumber: null.StringFrom(request.InvoiceNumber),
-			Amount:        null.IntFrom(request.Amount),
+			Amount:        models.FlexibleInt{Int: null.IntFrom(request.Amount)},
 		},
 		Payment: &models.DokuPayment{
 			PaymentDueDate: null.IntFrom(request.PaymentDueDate),

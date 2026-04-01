@@ -1,10 +1,73 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/guregu/null/v6"
 )
+
+// FlexibleInt is a custom type that can unmarshal from both int and float JSON values
+// It validates that float values are whole numbers and stores them as int64
+type FlexibleInt struct {
+	null.Int
+}
+
+// UnmarshalJSON implements custom unmarshalling to handle int, float, and string
+func (fi *FlexibleInt) UnmarshalJSON(data []byte) error {
+	// Handle null
+	if string(data) == "null" {
+		fi.Valid = false
+		return nil
+	}
+
+	var floatVal float64
+
+	// Try unmarshal as string first
+	var strVal string
+	if err := json.Unmarshal(data, &strVal); err == nil {
+		// It's a string, parse it as float
+		var parseErr error
+		floatVal, parseErr = parseFloat(strVal)
+		if parseErr != nil {
+			return fmt.Errorf("cannot parse string %s as number: %w", string(data), parseErr)
+		}
+	} else {
+		// Not a string, try as number (int or float)
+		if err := json.Unmarshal(data, &floatVal); err != nil {
+			return fmt.Errorf("cannot unmarshal %s into FlexibleInt: %w", string(data), err)
+		}
+	}
+
+	// Validate that it's a whole number
+	intVal := int64(floatVal)
+	if floatVal != float64(intVal) {
+		return fmt.Errorf("amount must be a whole number, got: %f", floatVal)
+	}
+
+	// Validate non-negative
+	if floatVal < 0 {
+		return fmt.Errorf("amount cannot be negative: %f", floatVal)
+	}
+
+	fi.Int64 = intVal
+	fi.Valid = true
+	return nil
+}
+
+// parseFloat is a helper to parse string to float64
+func parseFloat(s string) (float64, error) {
+	var result float64
+	_, err := fmt.Sscanf(s, "%f", &result)
+	return result, err
+}
+
+// MarshalJSON implements custom marshalling to always output as int
+func (fi FlexibleInt) MarshalJSON() ([]byte, error) {
+	// Delegate to null.Int's MarshalJSON
+	return fi.Int.MarshalJSON()
+}
 
 type DokuSignatureComponent struct {
 	ClientId         null.String `json:"Client-Id"`
@@ -16,7 +79,7 @@ type DokuSignatureComponent struct {
 
 type DokuOrder struct {
 	InvoiceNumber null.String `json:"invoice_number"`
-	Amount        null.Int    `json:"amount"`
+	Amount        FlexibleInt `json:"amount"`
 	Currency      null.String `json:"currency,omitempty"` // for response object
 	SessionID     null.String `json:"session_id,omitempty"`
 }
@@ -102,6 +165,6 @@ type DokuCardPayment struct {
 
 type DokuSettlement struct {
 	BankAccountSettlementID null.String `json:"bank_account_settlement_id"`
-	Value                   null.Float  `json:"value"`
+	Value                   FlexibleInt `json:"value"`
 	Type                    null.String `json:"type"`
 }
