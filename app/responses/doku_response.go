@@ -37,7 +37,7 @@ type DokuSendPayoutSubAccountResponse struct {
 	} `json:"payout"`
 	Beneficiary struct {
 		BankCode          string `json:"bank_code"`
-		BankAccountNumber int    `json:"bank_account_number"`
+		BankAccountNumber string `json:"bank_account_number"`
 		BankAccountName   string `json:"bank_account_name"`
 	} `json:"beneficiary"`
 }
