@@ -10,7 +10,7 @@ func Test_dokuUseCase_GetSupportedBanks(t *testing.T) {
 		name string
 	}{}
 
-	u := NewDokuUseCase("client_id", "secret_key", "private_key")
+	u := NewDokuUseCase("client_id", "secret_key", "private_key", false)
 
 	banks := u.GetSupportedBanks()
 	fmt.Printf("Supported Banks: %+v\n", banks)

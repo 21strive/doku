@@ -33,10 +33,16 @@ type DokuUseCaseInterface interface {
 	TransferSubAccount(request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog)
 }
 
+const (
+	dokuSandboxBaseURL    = "https://api-sandbox.doku.com"
+	dokuProductionBaseURL = "https://api.doku.com"
+)
+
 type dokuUseCase struct {
 	DokuAPIClientID  string
 	DokuAPISecretKey string
 	DokuPrivateKey   string
+	BaseURL          string
 	supportedBanks   []models.Bank
 }
 
@@ -44,11 +50,17 @@ func NewDokuUseCase(
 	dokuAPIClientID string,
 	dokuAPISecretKey string,
 	dokuPrivateKey string,
+	isProduction bool,
 ) DokuUseCaseInterface {
+	baseURL := dokuSandboxBaseURL
+	if isProduction {
+		baseURL = dokuProductionBaseURL
+	}
 	return &dokuUseCase{
 		DokuAPIClientID:  dokuAPIClientID,
 		DokuAPISecretKey: dokuAPISecretKey,
 		DokuPrivateKey:   dokuPrivateKey,
+		BaseURL:          baseURL,
 		supportedBanks:   constants.MustGetSupportedBanks(),
 	}
 }
@@ -202,7 +214,7 @@ func (u *dokuUseCase) CreateAccount(request *requests.DokuCreateSubAccountReques
 
 	createAccountAPI := helper.POST(&helper.Options{
 		Method:      "POST",
-		URL:         "https://api-sandbox.doku.com/sac-merchant/v1/accounts",
+		URL:         u.BaseURL + "/sac-merchant/v1/accounts",
 		Body:        createAccountPayloadJson,
 		Headers:     requestHeader,
 		Timeout:     30 * time.Second,
@@ -357,7 +369,7 @@ func (u *dokuUseCase) AcceptPayment(request *requests.DokuCreatePaymentRequest) 
 
 	createPaymentAPI := helper.POST(&helper.Options{
 		Method:      "POST",
-		URL:         "https://api-sandbox.doku.com/checkout/v1/payment",
+		URL:         u.BaseURL + "/checkout/v1/payment",
 		Body:        createPaymentPayloadJson,
 		Headers:     requestHeader,
 		Timeout:     30 * time.Second,
@@ -416,7 +428,7 @@ func (u *dokuUseCase) GetBalance(sacID string) (*responses.DokuGetBalanceHTTPRes
 
 	getBalanceAPI := helper.GET(&helper.Options{
 		Method:      "GET",
-		URL:         fmt.Sprintf("https://api-sandbox.doku.com/sac-merchant/v1/balances/%s", sacID),
+		URL:         fmt.Sprintf("%s/sac-merchant/v1/balances/%s", u.BaseURL, sacID),
 		Headers:     requestHeader,
 		Timeout:     30 * time.Second,
 		ContentType: "application/json",
@@ -506,7 +518,7 @@ func (u *dokuUseCase) GetToken() (*responses.GetTokenResponse, *models.ErrorLog)
 
 	response := helper.POST(&helper.Options{
 		Method: "POST",
-		URL:    "https://api-sandbox.doku.com/authorization/v1/access-token/b2b",
+		URL:    u.BaseURL + "/authorization/v1/access-token/b2b",
 		Headers: map[string]string{
 			"X-Timestamp":  xTimestamp,
 			"X-Signature":  xSignature,
@@ -562,7 +574,7 @@ func (u *dokuUseCase) BankAccountInquiry(request *requests.DokuBankAccountInquir
 
 	response := helper.POST(&helper.Options{
 		Method: "POST",
-		URL:    "https://api-sandbox.doku.com/snap/v1.1/emoney/bank-account-inquiry",
+		URL:    u.BaseURL + "/snap/v1.1/emoney/bank-account-inquiry",
 		Headers: map[string]string{
 			"Authorization": "Bearer " + accessToken,
 			"X-TIMESTAMP":   xTimestamp,
@@ -629,7 +641,7 @@ func (u *dokuUseCase) SendPayoutSubAccount(request requests.DokuSendPayoutSubAcc
 
 	sendPayoutAPI := helper.POST(&helper.Options{
 		Method:      "POST",
-		URL:         "https://api-sandbox.doku.com/sac-merchant/v1/payouts",
+		URL:         u.BaseURL + "/sac-merchant/v1/payouts",
 		Body:        sendPayoutPayloadJson,
 		Headers:     requestHeader,
 		Timeout:     30 * time.Second,
@@ -694,7 +706,7 @@ func (u *dokuUseCase) TransferSubAccount(request requests.DokuTransferSubAccount
 
 	transferAPI := helper.POST(&helper.Options{
 		Method:      "POST",
-		URL:         "https://api-sandbox.doku.com/sac-merchant/v1/transfers",
+		URL:         u.BaseURL + "/sac-merchant/v1/transfers",
 		Body:        transferPayloadJson,
 		Headers:     requestHeader,
 		Timeout:     30 * time.Second,
