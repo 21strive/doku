@@ -30,7 +30,7 @@ type DokuUseCaseInterface interface {
 	BankAccountInquiry(request *requests.DokuBankAccountInquiryRequest, accessToken string) (*responses.BankAccountInquiryResponse, *models.ErrorLog)
 	GetSupportedBanks() []models.Bank
 	SendPayoutSubAccount(requests.DokuSendPayoutSubAccountRequest) (*responses.DokuSendPayoutSubAccountResponse, *models.ErrorLog)
-	TransferSubAccount(request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog)
+	TransferSubAccount(requestId string, request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog)
 }
 
 const (
@@ -678,7 +678,7 @@ func (u *dokuUseCase) SendPayoutSubAccount(request requests.DokuSendPayoutSubAcc
 	return sendPayoutResponse, nil
 }
 
-func (u *dokuUseCase) TransferSubAccount(request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog) {
+func (u *dokuUseCase) TransferSubAccount(requestId string, request requests.DokuTransferSubAccountRequest) (*responses.DokuTransferSubAccountResponse, *models.ErrorLog) {
 
 	transferPayloadJson, err := json.Marshal(request)
 	if err != nil {
@@ -687,7 +687,6 @@ func (u *dokuUseCase) TransferSubAccount(request requests.DokuTransferSubAccount
 	}
 
 	// preparing signature components
-	requestId := uuid.NewString()
 	requestTimeStamp := time.Now().UTC()
 	requestTarget := "/sac-merchant/v1/transfers"
 
