@@ -740,5 +740,11 @@ func (u *dokuUseCase) TransferSubAccount(request requests.DokuTransferSubAccount
 		return nil, logData
 	}
 
+	if transferResponse.Transfer.Status != "SUCCESS" {
+		errorMessage := fmt.Sprintf("Doku Transfer status not SUCCESS: %s", transferResponse.Transfer.Status)
+		logData := helper.WriteLog(fmt.Errorf(errorMessage), http.StatusUnprocessableEntity, errorMessage)
+		return nil, logData
+	}
+
 	return transferResponse, nil
 }

@@ -32,7 +32,7 @@ func LoadEnv() {
 
 func TestCreatePaymentVirtualAccount(t *testing.T) {
 	LoadEnv()
-	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey)
+	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey, false)
 
 	timeNow := time.Now()
 	invoiceNumber := fmt.Sprintf("INV-%d", timeNow.Unix())
@@ -58,7 +58,7 @@ func TestCreatePaymentVirtualAccount(t *testing.T) {
 
 func TestCreatePaymentQris(t *testing.T) {
 	LoadEnv()
-	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey)
+	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey, false)
 
 	timeNow := time.Now()
 	invoiceNumber := fmt.Sprintf("INV-%d", timeNow.Unix())
@@ -84,7 +84,7 @@ func TestCreatePaymentQris(t *testing.T) {
 
 func TestGetBalance(t *testing.T) {
 	LoadEnv()
-	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey)
+	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey, false)
 
 	sacID := "SAC-8720-1765811058905"
 
@@ -100,7 +100,7 @@ func TestGetBalance(t *testing.T) {
 
 func TestGetToken(t *testing.T) {
 	LoadEnv()
-	dokuService := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey)
+	dokuService := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey, false)
 
 	resultGetToken, logData := dokuService.GetToken()
 	if logData != nil {
@@ -119,7 +119,7 @@ func TestGetToken(t *testing.T) {
 
 func TestBankAccountInquiry(t *testing.T) {
 	LoadEnv()
-	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey)
+	dokuUseCase := usecases.NewDokuUseCase(config.Get().Doku.ClientID, config.Get().Doku.SecretKey, config.Get().Doku.PrivateKey, false)
 
 	accessToken, logData := dokuUseCase.GetToken()
 	if logData != nil {
